@@ -33,6 +33,8 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
     ep_reward = 0.0
     ep_steps = 0
     running = True
+    notify = ""
+    notify_ticks = 0
 
     while running:
         for event in pygame.event.get():
@@ -43,24 +45,32 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     running = False
                 elif event.key == pygame.K_w:
                     show_hm = not show_hm
+                    notify = "Heatmap ON" if show_hm else "Heatmap OFF"
                 elif event.key == pygame.K_a:
                     show_ar = not show_ar
+                    notify = "Arrows ON" if show_ar else "Arrows OFF"
                 elif event.key == pygame.K_f:
                     fast = not fast
+                    notify = "Fast mode ON" if fast else "Fast mode OFF"
                 elif event.key == pygame.K_SPACE:
                     paused = not paused
+                    notify = "PAUSED" if paused else "RESUMED"
                 elif event.key == pygame.K_s:
                     sdk.save_q_table()
+                    notify = "Brain saved!"
                 elif event.key == pygame.K_l:
                     sdk.load_q_table()
+                    notify = "Brain loaded!"
                 elif event.key == pygame.K_r:
                     sdk._agent.reset()  # noqa: SLF001
                     sdk._episode_rewards.clear()  # noqa: SLF001
                     sdk._goals_reached = 0  # noqa: SLF001
                     state = sdk._env.reset()  # noqa: SLF001
                     ep_reward, ep_steps = 0.0, 0
+                    notify = "Hard reset!"
                 elif event.key == pygame.K_e:
                     sdk.launch_level_editor()
+                notify_ticks = 90
 
         if not paused and running:
             action = sdk._agent.select_action(state)  # noqa: SLF001
@@ -77,20 +87,30 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                 state = sdk._env.reset()  # noqa: SLF001
                 ep_reward, ep_steps = 0.0, 0
 
-        if not fast and running:
-            ep_list = sdk._episode_rewards  # noqa: SLF001
-            goal_rate = sdk._goals_reached / max(1, len(ep_list))  # noqa: SLF001
-            renderer.clear()
-            renderer.draw_grid(state, len(ep_list), ep_steps, paused=paused)
-            if show_hm:
-                heatmap.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
-            if show_ar:
-                arrows.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
-            dashboard.update(len(ep_list), ep_reward,
-                             sdk._agent.epsilon, ep_steps, goal_rate, ep_list)  # noqa: SLF001
-            dashboard.draw(renderer._screen)  # noqa: SLF001
-            renderer.draw_status_bar("Training", paused, show_hm, show_ar)
-            renderer.flip()
-            renderer.tick()
+        if notify_ticks > 0:
+            notify_ticks -= 1
+            if notify_ticks == 0:
+                notify = ""
 
+        ep_list = sdk._episode_rewards  # noqa: SLF001
+        goal_rate = sdk._goals_reached / max(1, len(ep_list))  # noqa: SLF001
+        renderer.clear()
+        renderer.draw_grid(state, len(ep_list), ep_steps, paused=paused)
+        if show_hm:
+            heatmap.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+        if show_ar:
+            arrows.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+        dashboard.update(len(ep_list), ep_reward,
+                         sdk._agent.epsilon, ep_steps, goal_rate, ep_list)  # noqa: SLF001
+        dashboard.draw(renderer._screen)  # noqa: SLF001
+        mode = "Fast" if fast else "Training"
+        renderer.draw_status_bar(mode, paused, show_hm, show_ar, notify)
+        renderer.flip()
+        renderer.tick()
+
+    ep_list = sdk._episode_rewards  # noqa: SLF001
+    sdk._log.info(  # noqa: SLF001
+        "Sessions stats: episodes=%d, goals=%d, ε=%.4f",
+        len(ep_list), sdk._goals_reached, sdk._agent.epsilon,  # noqa: SLF001
+    )
     pygame.quit()

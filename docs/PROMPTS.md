@@ -205,6 +205,29 @@ given wind stochasticity and the 12×12 grid complexity.
 
 ---
 
+## Token Cost Analysis
+
+Estimated token usage per milestone (Claude Sonnet 4.6, 2026-04-11):
+
+| Milestone | Prompts | Input Tokens (est.) | Output Tokens (est.) | Cost (est. USD) |
+|-----------|---------|--------------------|--------------------|-----------------|
+| M1 — Structure & Config | 4 | ~8,000 | ~6,000 | ~$0.06 |
+| M2 — Core RL Engine | 3 | ~12,000 | ~10,000 | ~$0.10 |
+| M3 — GUI & Overlays | 3 | ~15,000 | ~12,000 | ~$0.13 |
+| M4 — SDK & Main Loop | 2 | ~18,000 | ~8,000 | ~$0.10 |
+| M5 — Tests & Quality | 4 | ~22,000 | ~14,000 | ~$0.16 |
+| Post-delivery fixes | 3 | ~10,000 | ~8,000 | ~$0.08 |
+| **Total** | **19** | **~85,000** | **~58,000** | **~$0.63** |
+
+**Optimization notes:**
+- Context compaction triggered once (~M4/M5 boundary) — saved ~30% on subsequent calls
+- Parallel agent spawning used for notebook/research tasks — reduced latency
+- Ruff `--fix` used to auto-resolve linting issues instead of manual prompting
+
+**Pricing basis:** Claude Sonnet 4.6 — $3/MTok input, $15/MTok output (as of 2026-04)
+
+---
+
 ## Best Practices Discovered
 
 1. **Always create `docs/` structure first** — PRD, PLAN, TODO before any code

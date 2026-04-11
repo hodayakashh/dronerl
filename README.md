@@ -21,7 +21,7 @@ Watch a drone learn to deliver packages across a smart city grid using Tabular Q
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone and install
-git clone <repo-url>
+git clone https://github.com/hodayakashh/dronerl.git
 cd dronerl
 uv sync
 ```
@@ -134,6 +134,32 @@ Q(s,a) ← Q(s,a) + α · [r + γ · max Q(s',a') − Q(s,a)]
 | Hit trap | −50 |
 | Wind deflection | −2 |
 | Wall collision | −5 |
+
+---
+
+## Architecture
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full system diagram.
+
+**Layer summary:**
+```
+CLI / GUI  →  DroneRLSDK  →  Environment (Grid, Wind, Rewards)
+                         →  Agent       (QTable, Policy)
+                         →  Shared      (Config, Logger)
+```
+
+---
+
+## Extension Points
+
+| What to extend | Where | How |
+|---|---|---|
+| New cell types | `environment/grid.py` | Add to `CellType` enum |
+| Custom reward function | `environment/rewards.py` | Subclass `RewardCalculator` |
+| Different RL algorithm | `agent/agent.py` | Replace Bellman update logic |
+| New exploration policy | `agent/policy.py` | Implement `select()` + `decay_epsilon()` |
+| Custom grid layout | `config/settings.yaml` | Edit `layout` section |
+| New overlay | `gui/` | Implement `draw(surface, q_table, grid)` |
 
 ---
 

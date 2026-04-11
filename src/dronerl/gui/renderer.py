@@ -77,6 +77,7 @@ class Renderer:
         paused: bool,
         show_heatmap: bool,
         show_arrows: bool,
+        notify: str = "",
     ) -> None:
         """Draw the bottom status bar with mode indicator and key hints."""
         y = self._grid.rows * self._cell
@@ -85,13 +86,16 @@ class Renderer:
         state = "[PAUSED]" if paused else "[RUNNING]"
         hm = "[W]✓" if show_heatmap else "[W]"
         ar = "[A]✓" if show_arrows else "[A]"
+        fast_hint = "[F]✓ Fast" if mode == "Fast" else "[F] Fast"
         text = (
-            f"  Mode: {mode} {state}   "
-            f"[SPACE] Pause  [F] Fast  {hm} Heatmap  "
+            f"  {state}  [SPACE] Pause  {fast_hint}  {hm} Heatmap  "
             f"{ar} Arrows  [E] Editor  [S] Save  [L] Load  [R] Reset  [ESC] Quit"
         )
         surf = self._font.render(text, True, (200, 200, 200))
         self._screen.blit(surf, (4, y + 6))
+        if notify:
+            ns = self._font.render(f"  {notify}", True, (100, 255, 140))
+            self._screen.blit(ns, (self._screen.get_width() - 160, y + 6))
 
     def clear(self) -> None:
         """Fill background before drawing."""
