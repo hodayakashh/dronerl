@@ -32,22 +32,22 @@ uv sync
 
 ### Visual Training (GUI)
 ```bash
-uv run python main.py
+uv run dronerl
 ```
 
 ### Headless Training (fast, no GUI)
 ```bash
-uv run python main.py --headless --episodes 3000
+uv run dronerl --headless --episodes 3000
 ```
 
 ### Level Editor
 ```bash
-uv run python main.py --edit
+uv run dronerl --edit
 ```
 
 ### Custom Config
 ```bash
-uv run python main.py --config config/settings.yaml --episodes 5000
+uv run dronerl --config config/settings.yaml --episodes 5000
 ```
 
 ---
@@ -169,14 +169,14 @@ CLI / GUI  →  DroneRLSDK  →  Environment (Grid, Wind, Rewards)
 
 ```bash
 uv sync
-uv run python main.py
+uv run dronerl
 ```
 
 ### Headless server / CI
 
 ```bash
 uv sync --no-dev
-uv run python main.py --headless --episodes 3000
+uv run dronerl --headless --episodes 3000
 ```
 
 Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (already done automatically in headless mode).
