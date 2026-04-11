@@ -468,3 +468,134 @@ setup.json + settings.yaml
 | Separate `wind.py` | Wind logic independently testable and swappable |
 | `RewardCalculator` class | Zero magic numbers; all rewards from config |
 | Dashboard uses Pygame only | No Matplotlib overhead in real-time loop |
+
+---
+
+## C4 Architecture Model
+
+### Level 1 — System Context
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    External Context                      │
+│                                                         │
+│   [Student / Instructor]                                │
+│         │                                               │
+│         │  runs / observes                              │
+│         ▼                                               │
+│   ┌─────────────┐                                       │
+│   │   DroneRL   │  Smart City Drone RL Simulation       │
+│   │   System    │  (Python/Pygame desktop application)  │
+│   └─────────────┘                                       │
+│         │                                               │
+│         │  reads/writes                                 │
+│         ▼                                               │
+│   [Local File System]  (config/, data/, results/)       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Level 2 — Container
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        DroneRL System                        │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌───────────────┐ │
+│  │  CLI Entry   │    │  GUI Entry   │    │  Python API   │ │
+│  │  (main.py)   │    │(_gui_runner) │    │  (sdk.py)     │ │
+│  └──────┬───────┘    └──────┬───────┘    └───────┬───────┘ │
+│         └──────────────┬────┘                    │         │
+│                        ▼                         │         │
+│              ┌──────────────────┐                │         │
+│              │   DroneRLSDK     │◄───────────────┘         │
+│              │  (Business Logic)│                           │
+│              └────────┬─────────┘                           │
+│              ┌────────┴─────────┐                           │
+│              ▼                  ▼                           │
+│    ┌──────────────┐   ┌──────────────────┐                  │
+│    │  RL Engine   │   │  Environment     │                  │
+│    │  (agent/)    │   │  (environment/)  │                  │
+│    └──────────────┘   └──────────────────┘                  │
+│              ┌────────────────────────────┐                  │
+│              │  Shared (config/logger/gk) │                  │
+│              └────────────────────────────┘                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Level 3 — Component (SDK internals)
+
+```
+DroneRLSDK
+├── ConfigLoader        ← reads setup.json + settings.yaml
+├── SmartCityEnv        ← step(), reset()
+│   ├── Grid            ← CellType matrix
+│   ├── WindZone        ← stochastic deflection
+│   └── RewardCalculator← immutable frozen config
+├── Agent               ← select_action(), update(), end_episode()
+│   ├── QTable          ← float32 NumPy array
+│   └── EpsilonGreedyPolicy ← ε-greedy with multiplicative decay
+├── ApiGatekeeper       ← FIFO queue, rate limiting (all ext calls)
+└── Logger              ← centralised logging via logging_config.json
+```
+
+### Level 4 — Code (Q-Learning update, Bellman equation)
+
+```python
+# Bellman update — Agent.update() in agent/agent.py
+target = reward if done else reward + γ * max(Q[s'])
+Q[s, a] += α * (target - Q[s, a])
+```
+
+---
+
+## Architecture Decision Records (ADRs)
+
+### ADR-001: Tabular Q-Learning over DQN
+
+| | |
+|---|---|
+| **Status** | Accepted |
+| **Context** | Need RL algorithm for 12×12 grid with discrete state space |
+| **Decision** | Use tabular Q-Learning (not DQN / SARSA / Double-Q) |
+| **Rationale** | State space = 144 cells × 4 actions = 576 Q-values — fits easily in memory as float32. Tabular methods are fully transparent, converge provably to optimal policy, and allow the heatmap overlay to directly visualise learned values. DQN adds neural network complexity with no benefit at this scale. |
+| **Trade-offs** | Does not scale to continuous state spaces. Acceptable for course scope. |
+
+### ADR-002: SDK Facade Pattern
+
+| | |
+|---|---|
+| **Status** | Accepted |
+| **Context** | GUI (Pygame) and CLI must share all RL logic |
+| **Decision** | All business logic behind `DroneRLSDK`; GUI/CLI are zero-logic consumers |
+| **Rationale** | Enables full test coverage without Pygame (SDL_VIDEODRIVER=dummy). Allows headless training at 14 000+ eps/sec. Follows course guideline §6. |
+| **Trade-offs** | SDK class grows; mitigated by keeping it ≤150 code lines and delegating to sub-components. |
+
+### ADR-003: uv + pyproject.toml as Single Source of Truth
+
+| | |
+|---|---|
+| **Status** | Accepted |
+| **Context** | Python project needs reproducible dependency management |
+| **Decision** | `uv` only — no `pip`, no `requirements.txt` |
+| **Rationale** | `uv.lock` provides deterministic installs. `pyproject.toml` consolidates build, lint, test, and coverage config. Course guideline §18 mandates `uv`. |
+| **Trade-offs** | Requires `uv` to be installed; mitigated by installation instructions in README. |
+
+### ADR-004: Frozen Dataclass for RewardConfig
+
+| | |
+|---|---|
+| **Status** | Accepted |
+| **Context** | Reward values must be immutable after loading from config |
+| **Decision** | `@dataclass(frozen=True)` for `RewardConfig` |
+| **Rationale** | Prevents accidental mutation during training. All reward values come from `config/settings.yaml` — no magic numbers in code. |
+| **Trade-offs** | Requires explicit `float` literals when constructing; minor ergonomic cost. |
+
+### ADR-005: FIFO Queue in ApiGatekeeper
+
+| | |
+|---|---|
+| **Status** | Accepted |
+| **Context** | External API calls must respect rate limits without dropping requests |
+| **Decision** | Background drain thread processes a `deque` FIFO queue; `execute()` blocks until processed |
+| **Rationale** | Complies with course guideline §8. Queue depth is configurable (`max_queue_depth`). Backpressure raised when queue is full. Drain thread automatically releases when rate-limit window resets. |
+| **Trade-offs** | Adds latency vs immediate execution; acceptable because external calls are rare in this application. |

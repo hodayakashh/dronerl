@@ -17,8 +17,10 @@ from dronerl.environment.rewards import RewardCalculator, RewardConfig
 from dronerl.environment.wind import WindZone
 from dronerl.shared.config import ConfigLoader
 from dronerl.shared.logger import get_logger
+from dronerl.shared.version import VERSION
 
 _DEFAULT_QT_PATH = Path(__file__).parent.parent.parent / "data" / "q_tables" / "brain.npy"
+_SUPPORTED_CONFIG_VERSION = "1.00"
 
 
 class DroneRLSDK:
@@ -32,6 +34,7 @@ class DroneRLSDK:
         self._log = get_logger(__name__)
         loader = ConfigLoader()
         self._setup = loader.load_json(config_path, required_keys=["version", "grid", "gui"])
+        self._validate_config_version(self._setup.get("version", ""), config_path)
         self._cfg = loader.load_yaml("config/settings.yaml", required_keys=["agent", "rewards"])
         self._grid = self._build_grid()
         a = self._cfg.agent  # type: ignore[attr-defined]
@@ -153,3 +156,14 @@ class DroneRLSDK:
         ns.gui = SimpleNamespace(**self._setup["gui"])
         ns.grid = SimpleNamespace(**self._setup["grid"])
         return ns
+
+    def _validate_config_version(self, version: str, path: str) -> None:
+        """Warn if config version does not match the supported SDK version."""
+        if str(version) != _SUPPORTED_CONFIG_VERSION:
+            self._log.warning(
+                "Config version mismatch: '%s' in %s (SDK expects '%s'). "
+                "Some settings may be ignored.",
+                version, path, _SUPPORTED_CONFIG_VERSION,
+            )
+        else:
+            self._log.debug("Config version %s OK (SDK=%s)", version, VERSION)

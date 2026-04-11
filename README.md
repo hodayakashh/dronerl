@@ -209,6 +209,28 @@ CMD ["uv", "run", "python", "main.py", "--headless", "--episodes", "3000"]
 
 ---
 
+## Contributing
+
+1. **Fork** the repository and create a feature branch: `git checkout -b feature/my-change`
+2. **Follow** the code style — zero Ruff errors (`uv run ruff check src/`), all files ≤ 150 code lines
+3. **Write tests first** (TDD) — every new public function needs at least one test
+4. **Keep coverage ≥ 85%**: `uv run pytest tests/ --cov=src/dronerl`
+5. **No hardcoded values** — all parameters must come from `config/`
+6. **No secrets in code** — use environment variables; update `.env-example`
+7. **Update docs** — if you change behaviour, update the relevant `docs/` file and `README.md`
+8. **Submit a Pull Request** with a clear description of what changed and why
+
+### Code conventions
+
+| Rule | Tool |
+|---|---|
+| Linting | `uv run ruff check src/` |
+| Formatting | `uv run ruff format src/` |
+| Tests | `uv run pytest tests/` |
+| Package manager | `uv` only — no `pip` |
+
+---
+
 ## License
 
 MIT License. See LICENSE file.

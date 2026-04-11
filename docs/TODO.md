@@ -1,9 +1,31 @@
 # TODO — DroneRL: Smart City Drone Delivery
 
 ## Status Legend
-- [x] Not started
-- [~] In progress
-- [x] Done
+
+| Symbol | Meaning |
+|--------|---------|
+| `[ ]` | Not started |
+| `[~]` | In progress |
+| `[x]` | Done |
+
+## Priority Levels
+
+| Priority | Label | Description |
+|----------|-------|-------------|
+| P0 | Critical | Blocks submission / core functionality |
+| P1 | High | Required by guidelines, must be done |
+| P2 | Medium | Improves quality / completeness |
+| P3 | Low | Nice to have |
+
+## Definition of Done (Global)
+
+A task is **Done** when:
+1. Code is written and passes `uv run ruff check src/`
+2. Tests exist and pass with ≥ 85% coverage
+3. All files remain ≤ 150 code lines
+4. No secrets or hardcoded values introduced
+5. `git commit` with meaningful message has been created
+6. Relevant documentation updated if behaviour changed
 
 ---
 
@@ -967,3 +989,36 @@
 - [x] version.py at "1.00"
 - [x] Config files separate from code
 - [x] results/ contains convergence evidence
+
+---
+
+## POST-DELIVERY FIXES (after initial submission)
+
+### Priority: P0 — Critical
+
+- [x] **P0** Fix level editor returning to game (pygame.quit() was called) — `sdk.py`, `_gui_runner.py`
+- [x] **P0** Fix save_q_table path (relative → absolute) — `sdk.py`
+- [x] **P0** Fix load_q_table crash on missing file (return bool, no exception) — `sdk.py`
+- [x] **P0** Fix rate_limits.json format to use `services` key per guidelines §9 — `config/rate_limits.json`
+- [x] **P0** Add FIFO queue + backpressure to ApiGatekeeper per guidelines §8 — `gatekeeper.py`
+- [x] **P0** Add config version validation at SDK startup per guidelines §10 — `sdk.py`
+
+### Priority: P1 — High
+
+- [x] **P1** Add `__all__` to all sub-package `__init__.py` files per guidelines §19
+- [x] **P1** Fix logging_config.json version to string `"1.00"` per guidelines §10
+- [x] **P1** Add C4 model (L1–L4) and ADRs to `docs/PLAN.md` per guidelines §2.3
+- [x] **P1** Add contribution guidelines to README per guidelines §2.1
+- [x] **P1** Update TODO.md with priorities and definition-of-done per guidelines §2.4
+- [x] **P1** Upload project to GitHub — https://github.com/hodayakashh/dronerl
+
+### Priority: P2 — Medium
+
+- [x] **P2** Fast mode: 200 steps/frame + no FPS cap (was 1 step/frame)
+- [x] **P2** Arrows overlay: proper 7-point shaft+head shape with alpha transparency
+- [x] **P2** Status bar: active toggles (F/W/A) highlighted green instead of text notifications
+- [x] **P2** GUI color legend in right sidebar (Dashboard)
+- [x] **P2** Improved drone sprite (shadow, white ring, bigger)
+- [x] **P2** Add ISO/IEC 25010 quality table to README
+- [x] **P2** Add Deployment section to README (local / headless / Docker)
+- [x] **P2** Add ARCHITECTURE.md with full system diagram
