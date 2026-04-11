@@ -111,13 +111,11 @@ class DroneRLSDK:
         import pygame
 
         from dronerl.gui.level_editor import LevelEditor
-        pygame.init()
         cell = self._setup["gui"]["cell_size"]
         screen = pygame.display.set_mode(
             (self._grid.cols * cell + 240, self._grid.rows * cell + 28)
         )
         self._grid = LevelEditor(screen, self._grid, cell_size=cell).run()
-        pygame.quit()
 
     def get_training_stats(self) -> dict:
         """Return a snapshot of current training statistics."""

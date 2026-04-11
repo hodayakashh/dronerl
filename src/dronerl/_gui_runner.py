@@ -70,6 +70,10 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     notify = "Hard reset!"
                 elif event.key == pygame.K_e:
                     sdk.launch_level_editor()
+                    renderer = Renderer(sdk._grid, cfg_ns)  # noqa: SLF001
+                    heatmap = HeatmapOverlay(cell, sdk._grid.rows, sdk._grid.cols)  # noqa: SLF001
+                    state = sdk._env.reset()  # noqa: SLF001
+                    ep_reward, ep_steps = 0.0, 0
                 notify_ticks = 90
 
         if not paused and running:
