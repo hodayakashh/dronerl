@@ -199,11 +199,12 @@ Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (al
 
 ```dockerfile
 FROM python:3.13-slim
-RUN pip install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 COPY . .
 RUN uv sync --no-dev
-CMD ["uv", "run", "python", "main.py", "--headless", "--episodes", "3000"]
+CMD ["uv", "run", "dronerl", "--headless", "--episodes", "3000"]
 ```
 
 ---

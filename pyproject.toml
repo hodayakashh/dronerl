@@ -2,6 +2,8 @@
 name = "dronerl"
 version = "1.00"
 description = "DroneRL — Smart City Drone Delivery via Q-Learning (BIU Deep RL Course)"
+authors = [{ name = "hodayakashh" }]
+license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
     "pygame>=2.5",
