@@ -98,6 +98,24 @@ def test_sdk_save_creates_file(sdk: DroneRLSDK, tmp_path: Path) -> None:
     assert Path(p).exists()
 
 
+def test_sdk_load_missing_file_returns_false(sdk: DroneRLSDK, tmp_path: Path) -> None:
+    result = sdk.load_q_table(str(tmp_path / "missing.npy"))
+    assert result is False
+
+
+def test_sdk_load_success_returns_true(sdk: DroneRLSDK, tmp_path: Path) -> None:
+    p = str(tmp_path / "brain.npy")
+    sdk.save_q_table(p)
+    assert sdk.load_q_table(p) is True
+
+
+def test_sdk_load_wrong_shape_returns_false(sdk: DroneRLSDK, tmp_path: Path) -> None:
+    import numpy as np
+    p = tmp_path / "bad.npy"
+    np.save(str(p), np.zeros((3, 3, 3), dtype=np.float32))
+    assert sdk.load_q_table(str(p)) is False
+
+
 # ---------------------------------------------------------------------------
 # Training stats
 # ---------------------------------------------------------------------------

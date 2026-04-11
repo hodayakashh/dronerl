@@ -101,10 +101,19 @@ class DroneRLSDK:
         p.parent.mkdir(parents=True, exist_ok=True)
         self._q_table.save(p)
 
-    def load_q_table(self, path: str | None = None) -> None:
-        """Load Q-table from .npy file."""
+    def load_q_table(self, path: str | None = None) -> bool:
+        """Load Q-table from .npy file. Returns True on success, False otherwise."""
         p = Path(path) if path else _DEFAULT_QT_PATH
-        self._q_table.load(p)
+        if not p.exists():
+            self._log.warning("No saved brain at %s", p)
+            return False
+        try:
+            self._q_table.load(p)
+            self._log.info("Brain loaded from %s", p)
+            return True
+        except (ValueError, OSError) as exc:
+            self._log.error("Failed to load brain: %s", exc)
+            return False
 
     def launch_level_editor(self) -> None:
         """Open the interactive level editor (blocks until closed)."""

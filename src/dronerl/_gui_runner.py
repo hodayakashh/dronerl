@@ -59,8 +59,7 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     sdk.save_q_table()
                     notify = "Brain saved!"
                 elif event.key == pygame.K_l:
-                    sdk.load_q_table()
-                    notify = "Brain loaded!"
+                    notify = "Brain loaded!" if sdk.load_q_table() else "No save found!"
                 elif event.key == pygame.K_r:
                     sdk._agent.reset()  # noqa: SLF001
                     sdk._episode_rewards.clear()  # noqa: SLF001
@@ -74,6 +73,7 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     heatmap = HeatmapOverlay(cell, sdk._grid.rows, sdk._grid.cols)  # noqa: SLF001
                     state = sdk._env.reset()  # noqa: SLF001
                     ep_reward, ep_steps = 0.0, 0
+                    notify = "Level updated!"
                 notify_ticks = 90
 
         steps = 200 if fast else 1
