@@ -1,5 +1,9 @@
-# Environment
+# Environment & secrets
 .env
+*.pem
+*.key
+credentials.json
+secrets.json
 .venv/
 __pycache__/
 *.pyc

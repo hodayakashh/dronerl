@@ -4,12 +4,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import numpy as np
-import pytest
-
 from dronerl.agent.q_table import QTable
 from dronerl.environment.grid import CellType, Grid
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -90,6 +86,7 @@ def test_renderer_flip_no_crash(pygame_init: None) -> None:
 
 def test_heatmap_draw_no_crash(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.heatmap import HeatmapOverlay
     surf = pygame.display.get_surface()
     ho = HeatmapOverlay(cell_size=40, rows=4, cols=4)
@@ -98,6 +95,7 @@ def test_heatmap_draw_no_crash(pygame_init: None) -> None:
 
 def test_heatmap_draw_all_zeros_no_crash(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.heatmap import HeatmapOverlay
     surf = pygame.display.get_surface()
     ho = HeatmapOverlay(cell_size=40, rows=4, cols=4)
@@ -111,6 +109,7 @@ def test_heatmap_draw_all_zeros_no_crash(pygame_init: None) -> None:
 
 def test_arrows_draw_no_crash(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.arrows import ArrowOverlay
     surf = pygame.display.get_surface()
     ao = ArrowOverlay(cell_size=40)
@@ -130,6 +129,7 @@ def test_dashboard_init_no_crash(pygame_init: None) -> None:
 
 def test_dashboard_update_and_draw_no_crash(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.dashboard import Dashboard
     surf = pygame.display.get_surface()
     d = Dashboard(_config())
@@ -139,6 +139,7 @@ def test_dashboard_update_and_draw_no_crash(pygame_init: None) -> None:
 
 def test_dashboard_draw_empty_history(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.dashboard import Dashboard
     surf = pygame.display.get_surface()
     d = Dashboard(_config())
@@ -153,6 +154,7 @@ def test_dashboard_draw_empty_history(pygame_init: None) -> None:
 
 def test_level_editor_init_no_crash(pygame_init: None) -> None:
     import pygame
+
     from dronerl.gui.level_editor import LevelEditor
     surf = pygame.display.get_surface()
     ed = LevelEditor(surf, _grid4(), cell_size=40)

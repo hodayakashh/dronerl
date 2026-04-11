@@ -23,7 +23,8 @@ def test_sdk_init_valid_config(sdk: DroneRLSDK) -> None:
 
 
 def test_sdk_invalid_config_raises() -> None:
-    with pytest.raises(Exception):
+    from dronerl.shared.config import ConfigError
+    with pytest.raises(ConfigError):
         DroneRLSDK(config_path="nonexistent/setup.json")
 
 

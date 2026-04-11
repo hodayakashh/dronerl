@@ -81,6 +81,20 @@ Edit `config/setup.json` for GUI and grid settings.
 
 ---
 
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `uv: command not found` | Run `curl -LsSf https://astral.sh/uv/install.sh \| sh` then restart terminal |
+| `pygame.error: No video mode has been set` | Set `SDL_VIDEODRIVER=dummy` for headless environments |
+| `No module named dronerl` | Run `uv sync` to install the package |
+| Game window doesn't open | Make sure you're running `uv run dronerl` (not `python main.py`) |
+| `Brain loaded!` not appearing after `L` | Press `S` first to save a brain, then `L` to load it |
+| Fast mode still feels slow | Press `F` to toggle — status bar should turn green |
+| Config version warning at startup | Update `config/setup.json` `"version"` field to `"1.00"` |
+
+---
+
 ## Running Tests
 
 ```bash

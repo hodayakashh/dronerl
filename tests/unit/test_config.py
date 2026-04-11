@@ -1,7 +1,6 @@
 """Unit tests for dronerl.shared.config.ConfigLoader."""
 
 import json
-import textwrap
 from pathlib import Path
 from types import SimpleNamespace
 

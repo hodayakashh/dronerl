@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from dronerl.constants import Action, N_ACTIONS
+from dronerl.constants import N_ACTIONS, Action
 from dronerl.environment.wind import WindZone
 
 

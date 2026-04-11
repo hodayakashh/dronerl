@@ -8,6 +8,7 @@
   "gui": {
     "fps": 60,
     "cell_size": 56,
+    "dashboard_width": 240,
     "window_title": "DroneRL \u2014 Smart City"
   }
 }

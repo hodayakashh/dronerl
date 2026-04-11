@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pytest
 
@@ -15,7 +13,6 @@ from dronerl.environment.grid import CellType, Grid
 from dronerl.environment.rewards import RewardCalculator, RewardConfig
 from dronerl.environment.wind import WindZone
 from dronerl.sdk import DroneRLSDK
-
 
 # ---------------------------------------------------------------------------
 # 5.1 Extended — grid.py
@@ -152,7 +149,7 @@ def test_qtable_n_actions_one() -> None:
 
 def test_qtable_load_nonexistent_raises() -> None:
     qt = QTable(2, 2, 4)
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         qt.load("nonexistent_file.npy")
 
 

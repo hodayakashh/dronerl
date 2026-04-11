@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import threading
+import time
+
 import pytest
 
 from dronerl.shared.gatekeeper import ApiGatekeeper, BackpressureError
@@ -76,7 +79,7 @@ def test_backpressure_when_queue_full(tmp_path):
         '"retry_after_seconds":0,"max_retries":1,"max_queue_depth":1}}}'
     )
     gk = ApiGatekeeper(config_path=cfg)
-    barrier = threading.Event()
+    barrier: threading.Event = threading.Event()
 
     def slow():
         barrier.wait(timeout=5)
@@ -86,7 +89,7 @@ def test_backpressure_when_queue_full(tmp_path):
     # but blocks on barrier). Second call should fill the queue. Third → error.
     t = threading.Thread(target=gk.execute, args=(slow,), daemon=True)
     t.start()
-    import time; time.sleep(0.05)  # let drain thread pick first call
+    time.sleep(0.05)  # let drain thread pick first call
 
     # Queue a second call (fills depth=1 slot)
     t2 = threading.Thread(target=gk.execute, args=(lambda: None,), daemon=True)
@@ -99,6 +102,7 @@ def test_backpressure_when_queue_full(tmp_path):
     barrier.set()
     t.join(timeout=2)
     t2.join(timeout=2)
+
 
 
 def test_config_uses_services_key(tmp_path):
