@@ -163,6 +163,52 @@ CLI / GUI  →  DroneRLSDK  →  Environment (Grid, Wind, Rewards)
 
 ---
 
+## Deployment
+
+### Local (development)
+
+```bash
+uv sync
+uv run python main.py
+```
+
+### Headless server / CI
+
+```bash
+uv sync --no-dev
+uv run python main.py --headless --episodes 3000
+```
+
+Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (already done automatically in headless mode).
+
+### Docker (optional)
+
+```dockerfile
+FROM python:3.13-slim
+RUN pip install uv
+WORKDIR /app
+COPY . .
+RUN uv sync --no-dev
+CMD ["uv", "run", "python", "main.py", "--headless", "--episodes", "3000"]
+```
+
+---
+
+## Quality (ISO/IEC 25010)
+
+| Characteristic | How it is addressed |
+|---|---|
+| **Functional suitability** | Q-Learning agent reliably converges; 190 unit/integration tests |
+| **Performance efficiency** | 14 000+ training episodes/sec; float32 Q-table |
+| **Compatibility** | Pure Python 3.13, cross-platform (macOS/Linux/Windows) |
+| **Usability** | Interactive GUI with heatmap, policy arrows, live dashboard |
+| **Reliability** | 96 % test coverage; frozen config dataclasses prevent mutation |
+| **Security** | All external calls routed through `ApiGatekeeper` (rate-limiting) |
+| **Maintainability** | ≤150-line files; Ruff zero-error; SDK facade; dependency injection |
+| **Portability** | `uv` lockfile ensures reproducible installs; Docker-ready |
+
+---
+
 ## License
 
 MIT License. See LICENSE file.
