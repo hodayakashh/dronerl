@@ -1,0 +1,27 @@
+{
+  "run_date": "2026-04-11",
+  "config": {
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "epsilon_start": 1.0,
+    "epsilon_min": 0.01,
+    "epsilon_decay": 0.995,
+    "max_steps": 200,
+    "grid": "12x12",
+    "wind_drift_prob": 0.2
+  },
+  "results": {
+    "total_episodes": 3000,
+    "avg_reward_last_100": 78.6,
+    "goal_rate": 0.921,
+    "epsilon_final": 0.01,
+    "convergence_episode": 600
+  },
+  "kpi_status": {
+    "avg_reward_ge_80": false,
+    "goal_rate_note": "92.1% of episodes reached goal",
+    "converged_within_3000": true,
+    "benchmark_eps_per_sec": 14074,
+    "benchmark_kpi_ge_5000": true
+  }
+}

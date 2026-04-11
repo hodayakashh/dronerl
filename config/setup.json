@@ -1,0 +1,13 @@
+{
+  "version": "1.00",
+  "app_name": "DroneRL",
+  "grid": {
+    "rows": 12,
+    "cols": 12
+  },
+  "gui": {
+    "fps": 60,
+    "cell_size": 56,
+    "window_title": "DroneRL \u2014 Smart City"
+  }
+}

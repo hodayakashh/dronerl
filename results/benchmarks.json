@@ -1,0 +1,13 @@
+{
+  "benchmark": {
+    "episodes": 10000,
+    "elapsed_sec": 0.71,
+    "eps_per_sec": 14074
+  },
+  "convergence": {
+    "episodes": 3000,
+    "avg_last_100_reward": 78.6,
+    "goal_rate": 0.921,
+    "epsilon_final": 0.01
+  }
+}

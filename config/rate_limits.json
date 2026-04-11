@@ -1,0 +1,10 @@
+{
+  "version": "1.00",
+  "rate_limits": {
+    "default": {
+      "requests_per_minute": 60,
+      "concurrent_max": 4,
+      "max_retries": 3
+    }
+  }
+}
