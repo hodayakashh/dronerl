@@ -76,20 +76,22 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     ep_reward, ep_steps = 0.0, 0
                 notify_ticks = 90
 
+        steps = 200 if fast else 1
         if not paused and running:
-            action = sdk._agent.select_action(state)  # noqa: SLF001
-            ns, reward, done = sdk._env.step(action)  # noqa: SLF001
-            sdk._agent.update(state, action, reward, ns, done)  # noqa: SLF001
-            state = ns
-            ep_reward += reward
-            ep_steps += 1
-            if done:
-                ct = sdk._env.grid.get_cell(*state).name  # noqa: SLF001
-                sdk._goals_reached += int(ct == "GOAL")  # noqa: SLF001
-                sdk._episode_rewards.append(ep_reward)  # noqa: SLF001
-                sdk._agent.end_episode()  # noqa: SLF001
-                state = sdk._env.reset()  # noqa: SLF001
-                ep_reward, ep_steps = 0.0, 0
+            for _ in range(steps):
+                action = sdk._agent.select_action(state)  # noqa: SLF001
+                ns, reward, done = sdk._env.step(action)  # noqa: SLF001
+                sdk._agent.update(state, action, reward, ns, done)  # noqa: SLF001
+                state = ns
+                ep_reward += reward
+                ep_steps += 1
+                if done:
+                    ct = sdk._env.grid.get_cell(*state).name  # noqa: SLF001
+                    sdk._goals_reached += int(ct == "GOAL")  # noqa: SLF001
+                    sdk._episode_rewards.append(ep_reward)  # noqa: SLF001
+                    sdk._agent.end_episode()  # noqa: SLF001
+                    state = sdk._env.reset()  # noqa: SLF001
+                    ep_reward, ep_steps = 0.0, 0
 
         if notify_ticks > 0:
             notify_ticks -= 1
@@ -110,7 +112,8 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
         mode = "Fast" if fast else "Training"
         renderer.draw_status_bar(mode, paused, show_hm, show_ar, notify)
         renderer.flip()
-        renderer.tick()
+        if not fast:
+            renderer.tick()
 
     ep_list = sdk._episode_rewards  # noqa: SLF001
     sdk._log.info(  # noqa: SLF001
