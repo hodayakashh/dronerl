@@ -45,13 +45,10 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     running = False
                 elif event.key == pygame.K_w:
                     show_hm = not show_hm
-                    notify = "Heatmap ON" if show_hm else "Heatmap OFF"
                 elif event.key == pygame.K_a:
                     show_ar = not show_ar
-                    notify = "Arrows ON" if show_ar else "Arrows OFF"
                 elif event.key == pygame.K_f:
                     fast = not fast
-                    notify = "Fast mode ON" if fast else "Fast mode OFF"
                 elif event.key == pygame.K_SPACE:
                     paused = not paused
                     notify = "PAUSED" if paused else "RESUMED"

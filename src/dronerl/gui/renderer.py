@@ -79,20 +79,31 @@ class Renderer:
         show_arrows: bool,
         notify: str = "",
     ) -> None:
-        """Draw the bottom status bar with mode indicator and key hints."""
+        """Draw the bottom status bar; active toggle buttons are highlighted green."""
+        dim = (160, 160, 160)
+        on_fg = (80, 255, 120)
+        on_bg = (20, 70, 30)
         y = self._grid.rows * self._cell
-        bar = pygame.Rect(0, y, self._screen.get_width(), STATUS_HEIGHT)
-        pygame.draw.rect(self._screen, (30, 30, 30), bar)
+        pygame.draw.rect(self._screen, (30, 30, 30),
+                         pygame.Rect(0, y, self._screen.get_width(), STATUS_HEIGHT))
         state = "[PAUSED]" if paused else "[RUNNING]"
-        hm = "[W]✓" if show_heatmap else "[W]"
-        ar = "[A]✓" if show_arrows else "[A]"
-        fast_hint = "[F]✓ Fast" if mode == "Fast" else "[F] Fast"
-        text = (
-            f"  {state}  [SPACE] Pause  {fast_hint}  {hm} Heatmap  "
-            f"{ar} Arrows  [E] Editor  [S] Save  [L] Load  [R] Reset  [ESC] Quit"
-        )
-        surf = self._font.render(text, True, (200, 200, 200))
-        self._screen.blit(surf, (4, y + 6))
+        segments = [
+            (f"  {state}  [SPACE] Pause  ", False),
+            ("[F] Fast  ", mode == "Fast"),
+            ("[W] Heatmap  ", show_heatmap),
+            ("[A] Arrows  ", show_arrows),
+            ("[E] Editor  [S] Save  [L] Load  [R] Reset  [ESC] Quit", False),
+        ]
+        x = 4
+        for text, active in segments:
+            color = on_fg if active else dim
+            surf = self._font.render(text, True, color)
+            if active:
+                pygame.draw.rect(self._screen, on_bg,
+                                 pygame.Rect(x - 2, y + 2, surf.get_width() + 4,
+                                             STATUS_HEIGHT - 4), border_radius=3)
+            self._screen.blit(surf, (x, y + 6))
+            x += surf.get_width()
         if notify:
             ns = self._font.render(f"  {notify}", True, (100, 255, 140))
             self._screen.blit(ns, (self._screen.get_width() - 160, y + 6))
