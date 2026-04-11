@@ -35,6 +35,7 @@ class ArrowOverlay:
     """Draws a directional arrow per non-wall cell showing the greedy policy."""
 
     def __init__(self, cell_size: int) -> None:
+        """Store the pixel size of each grid cell for scaling arrows."""
         self._cell = cell_size
 
     def draw(self, surface: pygame.Surface, q_table: QTable, grid: Grid) -> None:
@@ -63,6 +64,7 @@ class ArrowOverlay:
         action: int,
         color: tuple[int, int, int, int],
     ) -> None:
+        """Rotate the normalised 7-point arrow polygon and draw it on *surface*."""
         angle = _ANGLE[action]
         scale = self._cell * 0.30
         cos_a, sin_a = math.cos(angle), math.sin(angle)
@@ -80,6 +82,7 @@ class ArrowOverlay:
 
 
 def _arrow_color(ct: CellType, trained: bool) -> tuple[int, int, int, int]:
+    """Return RGBA color for an arrow based on cell type and training state."""
     if ct is CellType.GOAL:
         return (80, 255, 120, 230)
     if ct is CellType.START:
@@ -90,4 +93,5 @@ def _arrow_color(ct: CellType, trained: bool) -> tuple[int, int, int, int]:
 
 
 def _valid(pts: list[tuple[int, int]]) -> bool:
+    """Return True if all polygon points contain finite numbers."""
     return all(math.isfinite(x) and math.isfinite(y) for x, y in pts)

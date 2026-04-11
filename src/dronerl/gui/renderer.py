@@ -129,9 +129,11 @@ class Renderer:
     # ------------------------------------------------------------------
 
     def _cell_color(self, cell_type: CellType) -> tuple[int, int, int]:
+        """Return the RGB fill color for a given CellType."""
         return CELL_COLORS.get(cell_type, (55, 60, 78))
 
     def _draw_drone(self, surface: pygame.Surface, pos: tuple[int, int]) -> None:
+        """Draw the drone sprite: shadow, cross arms, body circle, white outline ring."""
         r, c = pos
         cx = c * self._cell + self._cell // 2
         cy = r * self._cell + self._cell // 2

@@ -101,6 +101,7 @@ class QTable:
         self._table = data.astype(np.float32)
 
     def __repr__(self) -> str:
+        """Return a concise string showing shape and dtype."""
         return (
             f"QTable(rows={self._rows}, cols={self._cols}, "
             f"n_actions={self._n_actions}, dtype={self._table.dtype})"

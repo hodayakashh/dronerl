@@ -27,6 +27,7 @@ class _PendingCall:
     __slots__ = ("fn", "args", "kwargs", "result", "error", "done")
 
     def __init__(self, fn: Callable, args: tuple, kwargs: dict) -> None:
+        """Store the callable, its arguments, and a completion Event."""
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
@@ -48,6 +49,7 @@ class ApiGatekeeper:
     """
 
     def __init__(self, config_path: str | Path | None = None, profile: str = "default") -> None:
+        """Load rate-limit config and start the background drain thread."""
         path = Path(config_path) if config_path else _DEFAULT_CONFIG
         raw = ConfigLoader().load_json(path, required_keys=["services"])
         services = raw["services"]

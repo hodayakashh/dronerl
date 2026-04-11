@@ -94,10 +94,12 @@ class LevelEditor:
         pygame.display.flip()
 
     def _pixel_to_cell(self, pos: tuple[int, int]) -> tuple[int, int]:
+        """Convert a pixel (x, y) position to grid (row, col) coordinates."""
         x, y = pos
         return y // self._cell, x // self._cell
 
     def _cycle_cell(self, r: int, c: int) -> None:
+        """Advance the cell at (r, c) to the next CellType in the cycle order."""
         current = self._grid.get_cell(r, c)
         idx = _CYCLE.index(current) if current in _CYCLE else 0
         for next_ct in _CYCLE[idx + 1:] + _CYCLE:
@@ -107,6 +109,7 @@ class LevelEditor:
             break
 
     def _has(self, cell_type: CellType) -> bool:
+        """Return True if the grid already contains at least one cell of *cell_type*."""
         return any(
             self._grid.get_cell(r, c) is cell_type
             for r in range(self._grid.rows)
@@ -114,11 +117,13 @@ class LevelEditor:
         )
 
     def _reset_grid(self) -> None:
+        """Set every cell in the grid back to EMPTY."""
         for r in range(self._grid.rows):
             for c in range(self._grid.cols):
                 self._grid.set_cell(r, c, CellType.EMPTY)
 
     def _save(self) -> None:
+        """Serialise the current grid layout to config/custom_level.yaml."""
         layout: dict = {"walls": [], "traps": [], "winds": []}
         for r in range(self._grid.rows):
             for c in range(self._grid.cols):

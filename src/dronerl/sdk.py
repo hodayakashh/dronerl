@@ -146,12 +146,14 @@ class DroneRLSDK:
     # ------------------------------------------------------------------
 
     def _build_grid(self) -> Grid:
+        """Construct the Grid from setup.json dimensions and settings.yaml layout."""
         rows, cols = self._setup["grid"]["rows"], self._setup["grid"]["cols"]
         g = Grid(rows, cols)
         g.load_from_dict(vars(self._cfg.layout))  # type: ignore[attr-defined]
         return g
 
     def _make_config_ns(self) -> SimpleNamespace:
+        """Return a SimpleNamespace of gui/grid config for the Renderer and Dashboard."""
         ns = SimpleNamespace()
         ns.gui = SimpleNamespace(**self._setup["gui"])
         ns.grid = SimpleNamespace(**self._setup["grid"])

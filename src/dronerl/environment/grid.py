@@ -127,5 +127,6 @@ class Grid:
     # ------------------------------------------------------------------
 
     def _check_bounds(self, r: int, c: int) -> None:
+        """Raise IndexError if (r, c) is outside the grid dimensions."""
         if not self.in_bounds(r, c):
             raise IndexError(f"Cell ({r}, {c}) out of bounds for {self._rows}×{self._cols} grid")
