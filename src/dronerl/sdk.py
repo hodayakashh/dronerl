@@ -18,7 +18,7 @@ from dronerl.environment.wind import WindZone
 from dronerl.shared.config import ConfigLoader
 from dronerl.shared.logger import get_logger
 
-_DEFAULT_QT_PATH = Path("data/q_tables/brain.npy")
+_DEFAULT_QT_PATH = Path(__file__).parent.parent.parent / "data" / "q_tables" / "brain.npy"
 
 
 class DroneRLSDK:
