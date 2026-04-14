@@ -10,6 +10,8 @@ import pytest
 # Headless Pygame — must be set before any pygame import
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+# Force non-GUI matplotlib backend in tests to avoid Tk dependency on CI/local envs.
+os.environ.setdefault("MPLBACKEND", "Agg")
 
 import pygame  # noqa: E402
 

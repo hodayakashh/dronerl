@@ -104,9 +104,6 @@ class Renderer:
                                              STATUS_HEIGHT - 4), border_radius=3)
             self._screen.blit(surf, (x, y + 6))
             x += surf.get_width()
-        if notify:
-            ns = self._font.render(f"  {notify}", True, (100, 255, 140))
-            self._screen.blit(ns, (self._screen.get_width() - 160, y + 6))
 
     def clear(self) -> None:
         """Fill background before drawing."""

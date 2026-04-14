@@ -13,6 +13,8 @@ _TITLE_COLOR = (255, 255, 255)
 _GRAPH_H = 80
 _PADDING = 10
 _MAX_HISTORY = 100
+_NOTIFY_OK = (120, 255, 160)
+_NOTIFY_WARN = (255, 200, 120)
 
 
 class Dashboard:
@@ -104,6 +106,27 @@ class Dashboard:
         self._draw_graph(surface, self._history, graph_rect, _GRAPH_COLOR)
         y += _GRAPH_H + 12
         self._draw_legend(surface, y)
+
+    def draw_notification(self, surface: pygame.Surface, text: str) -> None:
+        """Render transient notification near the bottom of the dashboard panel."""
+        if not text:
+            return
+
+        is_warn = text.lower().startswith("no ") or text.lower().startswith("warning")
+        color = _NOTIFY_WARN if is_warn else _NOTIFY_OK
+        txt = self._font_sm.render(text, True, color)
+        max_w = self._w - (_PADDING * 2)
+        if txt.get_width() > max_w:
+            clipped = text
+            while clipped and self._font_sm.size(f"{clipped}...")[0] > max_w:
+                clipped = clipped[:-1]
+            txt = self._font_sm.render(f"{clipped}...", True, color)
+
+        x = self._x + _PADDING
+        y = self._h - txt.get_height() - _PADDING
+        bg_rect = pygame.Rect(x - 4, y - 2, min(max_w, txt.get_width()) + 8, txt.get_height() + 4)
+        pygame.draw.rect(surface, (35, 35, 35), bg_rect, border_radius=3)
+        surface.blit(txt, (x, y))
 
     def _draw_legend(self, surface: pygame.Surface, y: int) -> None:
         """Draw color legend in the dashboard panel."""

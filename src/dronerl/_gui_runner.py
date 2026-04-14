@@ -106,6 +106,7 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
         dashboard.update(len(ep_list), ep_reward,
                          sdk._agent.epsilon, ep_steps, goal_rate, ep_list)  # noqa: SLF001
         dashboard.draw(renderer._screen)  # noqa: SLF001
+        dashboard.draw_notification(renderer._screen, notify)
         mode = "Fast" if fast else "Training"
         renderer.draw_status_bar(mode, paused, show_hm, show_ar, notify)
         renderer.flip()

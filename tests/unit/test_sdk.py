@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from dronerl.agent.q_table import QTable
+from dronerl.environment.grid import CellType
 from dronerl.sdk import DroneRLSDK
 
 
@@ -133,3 +134,56 @@ def test_sdk_get_training_stats_keys(sdk: DroneRLSDK) -> None:
 def test_sdk_stats_episodes_count(sdk: DroneRLSDK) -> None:
     sdk.run_headless(7)
     assert sdk.get_training_stats()["episodes"] == 7
+
+
+# ---------------------------------------------------------------------------
+# Editor anchor sync (START/GOAL)
+# ---------------------------------------------------------------------------
+
+
+def test_sdk_find_first_returns_position_when_present(sdk: DroneRLSDK) -> None:
+    for r in range(sdk._grid.rows):
+        for c in range(sdk._grid.cols):
+            if sdk._grid.get_cell(r, c) is CellType.START:
+                sdk._grid.set_cell(r, c, CellType.EMPTY)
+    sdk._grid.set_cell(2, 3, CellType.START)
+    assert sdk._find_first(CellType.START) == (2, 3)
+
+
+def test_sdk_find_first_returns_none_when_absent(sdk: DroneRLSDK) -> None:
+    for r in range(sdk._grid.rows):
+        for c in range(sdk._grid.cols):
+            if sdk._grid.get_cell(r, c) is CellType.GOAL:
+                sdk._grid.set_cell(r, c, CellType.EMPTY)
+    assert sdk._find_first(CellType.GOAL) is None
+
+
+def test_sdk_apply_grid_anchors_updates_env_start_goal(sdk: DroneRLSDK) -> None:
+    for r in range(sdk._grid.rows):
+        for c in range(sdk._grid.cols):
+            if sdk._grid.get_cell(r, c) in (CellType.START, CellType.GOAL):
+                sdk._grid.set_cell(r, c, CellType.EMPTY)
+    sdk._grid.set_cell(4, 5, CellType.START)
+    sdk._grid.set_cell(7, 8, CellType.GOAL)
+
+    sdk._apply_grid_anchors_to_env()
+
+    assert sdk._start == (4, 5)
+    assert sdk._goal == (7, 8)
+    assert sdk._env.reset() == (4, 5)
+
+
+def test_sdk_apply_grid_anchors_restores_defaults_when_missing(sdk: DroneRLSDK) -> None:
+    default_start = sdk._default_start
+    default_goal = sdk._default_goal
+    for r in range(sdk._grid.rows):
+        for c in range(sdk._grid.cols):
+            if sdk._grid.get_cell(r, c) in (CellType.START, CellType.GOAL):
+                sdk._grid.set_cell(r, c, CellType.EMPTY)
+
+    sdk._apply_grid_anchors_to_env()
+
+    assert sdk._start == default_start
+    assert sdk._goal == default_goal
+    assert sdk._grid.get_cell(*default_start) is CellType.START
+    assert sdk._grid.get_cell(*default_goal) is CellType.GOAL

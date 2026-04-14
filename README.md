@@ -14,21 +14,41 @@ Watch a drone learn to deliver packages across a smart city grid using Tabular Q
 
 ## Installation
 
-**Requires Python 3.11+**
+**Requires Python 3.11+ and Git**
+
+### 1) Install `uv` (if not already installed)
+
+#### Windows (PowerShell)
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+#### macOS / Linux
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+After install, restart your terminal (or open a new one) so `uv` is available in `PATH`.
+
+### 2) Clone project and install dependencies
 
 ```bash
-# Install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Clone and install
 git clone https://github.com/hodayakashh/dronerl.git
 cd dronerl
 uv sync
 ```
 
+### 3) Run the app
+
+```bash
+uv run dronerl
+```
+
 ---
 
 ## Usage
+
+Run all commands below from the repository root (`dronerl/`).
 
 ### Visual Training (GUI)
 ```bash
@@ -45,9 +65,9 @@ uv run dronerl --headless --episodes 3000
 uv run dronerl --edit
 ```
 
-### Custom Config
+### Custom Setup Config
 ```bash
-uv run dronerl --config config/settings.yaml --episodes 5000
+uv run dronerl --config config/setup.json --episodes 5000
 ```
 
 ---
@@ -74,10 +94,21 @@ Edit `config/setup.json` for GUI and grid settings.
 
 | Key | Action |
 |---|---|
-| `H` | Toggle value heatmap |
+| `W` | Toggle value heatmap |
 | `A` | Toggle policy arrows |
 | `Space` | Pause / Resume |
 | `ESC` | Quit |
+
+### Level Editor Controls (`uv run dronerl --edit` or press `E` in GUI)
+
+- Left click: paint selected brush
+- Left-click drag: continuous paint
+- Right click: erase to empty
+- `1..6`: select brush (`Empty`, `Wall`, `Trap`, `Wind`, `Goal`, `Start`)
+- `Tab` / mouse wheel: cycle brush
+- `S`: save to `config/custom_level.yaml`
+- `R`: reset grid
+- `ESC`: exit editor
 
 ---
 
@@ -195,17 +226,6 @@ uv run dronerl --headless --episodes 3000
 
 Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (already done automatically in headless mode).
 
-### Docker (optional)
-
-```dockerfile
-FROM python:3.13-slim
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
-WORKDIR /app
-COPY . .
-RUN uv sync --no-dev
-CMD ["uv", "run", "dronerl", "--headless", "--episodes", "3000"]
-```
 
 ---
 
@@ -224,17 +244,6 @@ CMD ["uv", "run", "dronerl", "--headless", "--episodes", "3000"]
 
 ---
 
-## Contributing
-
-1. **Fork** the repository and create a feature branch: `git checkout -b feature/my-change`
-2. **Follow** the code style — zero Ruff errors (`uv run ruff check src/`), all files ≤ 150 code lines
-3. **Write tests first** (TDD) — every new public function needs at least one test
-4. **Keep coverage ≥ 85%**: `uv run pytest tests/ --cov=src/dronerl`
-5. **No hardcoded values** — all parameters must come from `config/`
-6. **No secrets in code** — use environment variables; update `.env-example`
-7. **Update docs** — if you change behaviour, update the relevant `docs/` file and `README.md`
-8. **Submit a Pull Request** with a clear description of what changed and why
-
 ### Code conventions
 
 | Rule | Tool |
@@ -245,10 +254,6 @@ CMD ["uv", "run", "dronerl", "--headless", "--episodes", "3000"]
 | Package manager | `uv` only — no `pip` |
 
 ---
-
-## License
-
-MIT License. See LICENSE file.
 
 ## Author
 

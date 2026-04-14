@@ -12,7 +12,7 @@ from dronerl.agent.policy import EpsilonGreedyPolicy
 from dronerl.agent.q_table import QTable
 from dronerl.constants import N_ACTIONS
 from dronerl.environment.env import SmartCityEnv
-from dronerl.environment.grid import Grid
+from dronerl.environment.grid import CellType, Grid
 from dronerl.environment.rewards import RewardCalculator, RewardConfig
 from dronerl.environment.wind import WindZone
 from dronerl.shared.config import ConfigLoader
@@ -42,6 +42,8 @@ class DroneRLSDK:
         self._wind = WindZone(float(a.wind_drift_prob), rng)
         self._reward_calc = RewardCalculator(RewardConfig.from_namespace(self._cfg.rewards))
         layout = self._cfg.layout  # type: ignore[attr-defined]
+        self._default_start: tuple = tuple(layout.start)
+        self._default_goal: tuple = tuple(layout.goal)
         self._start: tuple = tuple(layout.start)
         self._goal: tuple = tuple(layout.goal)
         self._env = SmartCityEnv(
@@ -128,6 +130,8 @@ class DroneRLSDK:
             (self._grid.cols * cell + 240, self._grid.rows * cell + 28)
         )
         self._grid = LevelEditor(screen, self._grid, cell_size=cell).run()
+        self._apply_grid_anchors_to_env()
+        self._log.info("Editor applied: start=%s goal=%s", self._start, self._goal)
 
     def get_training_stats(self) -> dict:
         """Return a snapshot of current training statistics."""
@@ -151,6 +155,40 @@ class DroneRLSDK:
         g = Grid(rows, cols)
         g.load_from_dict(vars(self._cfg.layout))  # type: ignore[attr-defined]
         return g
+
+    def _apply_grid_anchors_to_env(self) -> None:
+        """Sync START/GOAL cells from edited grid back into active environment."""
+        edited_start = self._find_first(CellType.START)
+        edited_goal = self._find_first(CellType.GOAL)
+        if edited_start is not None:
+            self._start = edited_start
+        else:
+            self._start = self._default_start
+            self._grid.set_cell(*self._default_start, CellType.START)
+            self._log.warning(
+                "Editor grid had no START; restored default start=%s",
+                self._default_start,
+            )
+        if edited_goal is not None:
+            self._goal = edited_goal
+        else:
+            self._goal = self._default_goal
+            self._grid.set_cell(*self._default_goal, CellType.GOAL)
+            self._log.warning(
+                "Editor grid had no GOAL; restored default goal=%s",
+                self._default_goal,
+            )
+        self._env = SmartCityEnv(
+            self._grid, self._wind, self._reward_calc, self._start, self._goal
+        )
+
+    def _find_first(self, cell_type: CellType) -> tuple[int, int] | None:
+        """Return the first position of the given cell type, or None if absent."""
+        for r in range(self._grid.rows):
+            for c in range(self._grid.cols):
+                if self._grid.get_cell(r, c) is cell_type:
+                    return (r, c)
+        return None
 
     def _make_config_ns(self) -> SimpleNamespace:
         """Return a SimpleNamespace of gui/grid config for the Renderer and Dashboard."""
