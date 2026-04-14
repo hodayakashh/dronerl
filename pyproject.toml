@@ -24,6 +24,8 @@ packages = ["src/dronerl"]
 
 [dependency-groups]
 dev = [
+    "jupyter>=1.1.1",
+    "nbconvert>=7.17.1",
     "pytest>=7.4",
     "pytest-cov>=4.1",
     "ruff>=0.3",
