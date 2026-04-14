@@ -263,6 +263,15 @@ Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (al
 
 ---
 
-## Author
+## License & Credits
 
-DroneRL — BIU Deep Reinforcement Learning Course
+DroneRL — BIU Deep Reinforcement Learning Course. Released under the **MIT License**.
+
+### Third-party libraries
+
+| Library | Version | License | Usage |
+|---|---|---|---|
+| [pygame](https://www.pygame.org) | ≥2.5 | LGPL 2.1 | Game window, rendering, events |
+| [numpy](https://numpy.org) | ≥1.26 | BSD 3-Clause | Q-table storage and operations |
+| [pyyaml](https://pyyaml.org) | ≥6.0 | MIT | YAML config file parsing |
+| [matplotlib](https://matplotlib.org) | ≥3.8 | PSF/BSD | Results graphs in notebook |
