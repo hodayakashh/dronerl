@@ -97,6 +97,10 @@ class DroneRLSDK:
         """Run the interactive Pygame training loop."""
         from dronerl._gui_runner import run_gui_loop
         run_gui_loop(self)
+        self._log.info(
+            "Session stats: episodes=%d, goals=%d, ε=%.4f",
+            len(self._episode_rewards), self._goals_reached, self._agent.epsilon,
+        )
 
     def get_q_table(self) -> QTable:
         """Return the current Q-table."""
@@ -161,3 +165,37 @@ class DroneRLSDK:
     def get_config_ns(self) -> SimpleNamespace:
         """Return config namespace for Renderer and Dashboard."""
         return make_config_ns(self._setup)
+
+    # ------------------------------------------------------------------
+    # Properties (expose internals for gui_runner without private access)
+    # ------------------------------------------------------------------
+
+    @property
+    def grid(self) -> Grid:
+        """Return the active grid."""
+        return self._grid
+
+    @property
+    def env(self) -> SmartCityEnv:
+        """Return the active environment."""
+        return self._env
+
+    @property
+    def agent(self) -> Agent:
+        """Return the active agent."""
+        return self._agent
+
+    @property
+    def episode_rewards(self) -> list[float]:
+        """Return the mutable episode-rewards list."""
+        return self._episode_rewards
+
+    @property
+    def goals_reached(self) -> int:
+        """Return total goals reached so far."""
+        return self._goals_reached
+
+    @goals_reached.setter
+    def goals_reached(self, value: int) -> None:
+        """Set the goals-reached counter."""
+        self._goals_reached = value

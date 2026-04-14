@@ -22,14 +22,14 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
 
     pygame.init()
     cfg_ns = sdk.get_config_ns()
-    renderer = Renderer(sdk._grid, cfg_ns)  # noqa: SLF001
+    renderer = Renderer(sdk.grid, cfg_ns)
     dashboard = Dashboard(cfg_ns)
     cell = int(cfg_ns.gui.cell_size)
-    heatmap = HeatmapOverlay(cell, sdk._grid.rows, sdk._grid.cols)  # noqa: SLF001
+    heatmap = HeatmapOverlay(cell, sdk.grid.rows, sdk.grid.cols)
     arrows = ArrowOverlay(cell)
 
     show_hm = show_ar = paused = fast = False
-    state = sdk._env.reset()  # noqa: SLF001
+    state = sdk.env.reset()
     ep_reward = 0.0
     ep_steps = 0
     running = True
@@ -58,17 +58,17 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                 elif event.key == pygame.K_l:
                     notify = "Brain loaded!" if sdk.load_q_table() else "No save found!"
                 elif event.key == pygame.K_r:
-                    sdk._agent.reset()  # noqa: SLF001
-                    sdk._episode_rewards.clear()  # noqa: SLF001
-                    sdk._goals_reached = 0  # noqa: SLF001
-                    state = sdk._env.reset()  # noqa: SLF001
+                    sdk.agent.reset()
+                    sdk.episode_rewards.clear()
+                    sdk.goals_reached = 0
+                    state = sdk.env.reset()
                     ep_reward, ep_steps = 0.0, 0
                     notify = "Hard reset!"
                 elif event.key == pygame.K_e:
                     sdk.launch_level_editor()
-                    renderer = Renderer(sdk._grid, cfg_ns)  # noqa: SLF001
-                    heatmap = HeatmapOverlay(cell, sdk._grid.rows, sdk._grid.cols)  # noqa: SLF001
-                    state = sdk._env.reset()  # noqa: SLF001
+                    renderer = Renderer(sdk.grid, cfg_ns)
+                    heatmap = HeatmapOverlay(cell, sdk.grid.rows, sdk.grid.cols)
+                    state = sdk.env.reset()
                     ep_reward, ep_steps = 0.0, 0
                     notify = "Level updated!"
                 notify_ticks = 90
@@ -76,18 +76,18 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
         steps = 200 if fast else 1
         if not paused and running:
             for _ in range(steps):
-                action = sdk._agent.select_action(state)  # noqa: SLF001
-                ns, reward, done = sdk._env.step(action)  # noqa: SLF001
-                sdk._agent.update(state, action, reward, ns, done)  # noqa: SLF001
+                action = sdk.agent.select_action(state)
+                ns, reward, done = sdk.env.step(action)
+                sdk.agent.update(state, action, reward, ns, done)
                 state = ns
                 ep_reward += reward
                 ep_steps += 1
                 if done:
-                    ct = sdk._env.grid.get_cell(*state).name  # noqa: SLF001
-                    sdk._goals_reached += int(ct == "GOAL")  # noqa: SLF001
-                    sdk._episode_rewards.append(ep_reward)  # noqa: SLF001
-                    sdk._agent.end_episode()  # noqa: SLF001
-                    state = sdk._env.reset()  # noqa: SLF001
+                    ct = sdk.env.grid.get_cell(*state).name
+                    sdk.goals_reached += int(ct == "GOAL")
+                    sdk.episode_rewards.append(ep_reward)
+                    sdk.agent.end_episode()
+                    state = sdk.env.reset()
                     ep_reward, ep_steps = 0.0, 0
 
         if notify_ticks > 0:
@@ -95,17 +95,17 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
             if notify_ticks == 0:
                 notify = ""
 
-        ep_list = sdk._episode_rewards  # noqa: SLF001
-        goal_rate = sdk._goals_reached / max(1, len(ep_list))  # noqa: SLF001
+        ep_list = sdk.episode_rewards
+        goal_rate = sdk.goals_reached / max(1, len(ep_list))
         renderer.clear()
         renderer.draw_grid(state, len(ep_list), ep_steps, paused=paused)
         if show_hm:
-            heatmap.draw(renderer.screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+            heatmap.draw(renderer.screen, sdk.get_q_table(), sdk.grid)
         if show_ar:
-            arrows.draw(renderer.screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+            arrows.draw(renderer.screen, sdk.get_q_table(), sdk.grid)
         dashboard.update(len(ep_list), ep_reward,
-                         sdk._agent.epsilon, ep_steps, goal_rate, ep_list)  # noqa: SLF001
-        dashboard.draw(renderer.screen)  # noqa: SLF001
+                         sdk.agent.epsilon, ep_steps, goal_rate, ep_list)
+        dashboard.draw(renderer.screen)
         dashboard.draw_notification(renderer.screen, notify)
         mode = "Fast" if fast else "Training"
         renderer.draw_status_bar(mode, paused, show_hm, show_ar, notify)
@@ -113,9 +113,4 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
         if not fast:
             renderer.tick()
 
-    ep_list = sdk._episode_rewards  # noqa: SLF001
-    sdk._log.info(  # noqa: SLF001
-        "Sessions stats: episodes=%d, goals=%d, ε=%.4f",
-        len(ep_list), sdk._goals_reached, sdk._agent.epsilon,  # noqa: SLF001
-    )
     pygame.quit()
