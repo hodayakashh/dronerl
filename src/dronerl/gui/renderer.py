@@ -117,6 +117,11 @@ class Renderer:
         """Advance the clock by one frame."""
         self._clock.tick(self._fps)
 
+    @property
+    def screen(self) -> pygame.Surface:
+        """Return the underlying Pygame surface."""
+        return self._screen
+
     def handle_quit_event(self) -> bool:
         """Return True if a QUIT event is pending (does not consume events)."""
         return any(e.type == pygame.QUIT for e in pygame.event.peek([pygame.QUIT]))

@@ -30,6 +30,7 @@ results/*.pkl
 # DroneRL runtime outputs
 logs/
 data/q_tables/*.npy
+config/custom_level.yaml
 
 # Jupyter
 .ipynb_checkpoints/

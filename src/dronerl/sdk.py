@@ -158,6 +158,6 @@ class DroneRLSDK:
             "total_steps": self._agent.total_steps,
         }
 
-    def _make_config_ns(self) -> SimpleNamespace:
+    def get_config_ns(self) -> SimpleNamespace:
         """Return config namespace for Renderer and Dashboard."""
         return make_config_ns(self._setup)

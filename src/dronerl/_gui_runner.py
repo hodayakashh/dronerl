@@ -21,7 +21,7 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
     from dronerl.gui.renderer import Renderer
 
     pygame.init()
-    cfg_ns = sdk._make_config_ns()  # noqa: SLF001
+    cfg_ns = sdk.get_config_ns()
     renderer = Renderer(sdk._grid, cfg_ns)  # noqa: SLF001
     dashboard = Dashboard(cfg_ns)
     cell = int(cfg_ns.gui.cell_size)
@@ -100,13 +100,13 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
         renderer.clear()
         renderer.draw_grid(state, len(ep_list), ep_steps, paused=paused)
         if show_hm:
-            heatmap.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+            heatmap.draw(renderer.screen, sdk._q_table, sdk._grid)  # noqa: SLF001
         if show_ar:
-            arrows.draw(renderer._screen, sdk._q_table, sdk._grid)  # noqa: SLF001
+            arrows.draw(renderer.screen, sdk._q_table, sdk._grid)  # noqa: SLF001
         dashboard.update(len(ep_list), ep_reward,
                          sdk._agent.epsilon, ep_steps, goal_rate, ep_list)  # noqa: SLF001
-        dashboard.draw(renderer._screen)  # noqa: SLF001
-        dashboard.draw_notification(renderer._screen, notify)
+        dashboard.draw(renderer.screen)  # noqa: SLF001
+        dashboard.draw_notification(renderer.screen, notify)
         mode = "Fast" if fast else "Training"
         renderer.draw_status_bar(mode, paused, show_hm, show_ar, notify)
         renderer.flip()
