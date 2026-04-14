@@ -25,6 +25,8 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
     renderer = Renderer(sdk.grid, cfg_ns)
     dashboard = Dashboard(cfg_ns)
     cell = int(cfg_ns.gui.cell_size)
+    notify_duration = int(getattr(cfg_ns.gui, "notify_duration_ticks", 90))
+    fast_steps = int(getattr(cfg_ns.gui, "fast_mode_steps", 200))
     heatmap = HeatmapOverlay(cell, sdk.grid.rows, sdk.grid.cols)
     arrows = ArrowOverlay(cell)
 
@@ -71,9 +73,9 @@ def run_gui_loop(sdk: DroneRLSDK) -> None:  # noqa: C901
                     state = sdk.env.reset()
                     ep_reward, ep_steps = 0.0, 0
                     notify = "Level updated!"
-                notify_ticks = 90
+                notify_ticks = notify_duration
 
-        steps = 200 if fast else 1
+        steps = fast_steps if fast else 1
         if not paused and running:
             for _ in range(steps):
                 action = sdk.agent.select_action(state)

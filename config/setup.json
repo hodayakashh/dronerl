@@ -9,6 +9,8 @@
     "fps": 60,
     "cell_size": 56,
     "dashboard_width": 240,
-    "window_title": "DroneRL \u2014 Smart City"
+    "window_title": "DroneRL \u2014 Smart City",
+    "notify_duration_ticks": 90,
+    "fast_mode_steps": 200
   }
 }
