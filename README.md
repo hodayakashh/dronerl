@@ -244,6 +244,8 @@ Set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` if no display is available (al
 
 ---
 
+## Contributing
+
 ### Code conventions
 
 | Rule | Tool |
