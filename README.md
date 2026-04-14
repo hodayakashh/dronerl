@@ -3,6 +3,12 @@
 An educational Reinforcement Learning game built with Python and Pygame.
 Watch a drone learn to deliver packages across a smart city grid using Tabular Q-Learning.
 
+## Screenshots
+
+| Initial state (paused) | Heatmap overlay (ep 500) | Policy arrows overlay |
+|---|---|---|
+| ![Initial](assets/screenshot_initial.png) | ![Heatmap](assets/screenshot_heatmap.png) | ![Arrows](assets/screenshot_arrows.png) |
+
 ## What You'll Learn
 
 - **Q-Learning & Bellman Equation** — how values propagate backwards through a grid
