@@ -7,20 +7,25 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from dronerl._sdk_helpers import (
+    _SUPPORTED_CONFIG_VERSION,
+    apply_grid_anchors,
+    build_grid,
+    make_config_ns,
+    validate_config_version,
+)
 from dronerl.agent.agent import Agent
 from dronerl.agent.policy import EpsilonGreedyPolicy
 from dronerl.agent.q_table import QTable
 from dronerl.constants import N_ACTIONS
 from dronerl.environment.env import SmartCityEnv
-from dronerl.environment.grid import CellType, Grid
+from dronerl.environment.grid import Grid
 from dronerl.environment.rewards import RewardCalculator, RewardConfig
 from dronerl.environment.wind import WindZone
 from dronerl.shared.config import ConfigLoader
 from dronerl.shared.logger import get_logger
-from dronerl.shared.version import VERSION
 
 _DEFAULT_QT_PATH = Path(__file__).parent.parent.parent / "data" / "q_tables" / "brain.npy"
-_SUPPORTED_CONFIG_VERSION = "1.00"
 
 
 class DroneRLSDK:
@@ -34,9 +39,11 @@ class DroneRLSDK:
         self._log = get_logger(__name__)
         loader = ConfigLoader()
         self._setup = loader.load_json(config_path, required_keys=["version", "grid", "gui"])
-        self._validate_config_version(self._setup.get("version", ""), config_path)
+        validate_config_version(
+            self._setup.get("version", ""), config_path, _SUPPORTED_CONFIG_VERSION, self._log
+        )
         self._cfg = loader.load_yaml("config/settings.yaml", required_keys=["agent", "rewards"])
-        self._grid = self._build_grid()
+        self._grid: Grid = build_grid(self._setup, self._cfg.layout)  # type: ignore[attr-defined]
         a = self._cfg.agent  # type: ignore[attr-defined]
         rng = np.random.default_rng(int(a.seed))
         self._wind = WindZone(float(a.wind_drift_prob), rng)
@@ -125,12 +132,18 @@ class DroneRLSDK:
         import pygame
 
         from dronerl.gui.level_editor import LevelEditor
+
         cell = self._setup["gui"]["cell_size"]
         screen = pygame.display.set_mode(
             (self._grid.cols * cell + 240, self._grid.rows * cell + 28)
         )
         self._grid = LevelEditor(screen, self._grid, cell_size=cell).run()
-        self._apply_grid_anchors_to_env()
+        self._start, self._goal = apply_grid_anchors(
+            self._grid, self._default_start, self._default_goal, self._log
+        )
+        self._env = SmartCityEnv(
+            self._grid, self._wind, self._reward_calc, self._start, self._goal
+        )
         self._log.info("Editor applied: start=%s goal=%s", self._start, self._goal)
 
     def get_training_stats(self) -> dict:
@@ -145,65 +158,6 @@ class DroneRLSDK:
             "total_steps": self._agent.total_steps,
         }
 
-    # ------------------------------------------------------------------
-    # Private helpers
-    # ------------------------------------------------------------------
-
-    def _build_grid(self) -> Grid:
-        """Construct the Grid from setup.json dimensions and settings.yaml layout."""
-        rows, cols = self._setup["grid"]["rows"], self._setup["grid"]["cols"]
-        g = Grid(rows, cols)
-        g.load_from_dict(vars(self._cfg.layout))  # type: ignore[attr-defined]
-        return g
-
-    def _apply_grid_anchors_to_env(self) -> None:
-        """Sync START/GOAL cells from edited grid back into active environment."""
-        edited_start = self._find_first(CellType.START)
-        edited_goal = self._find_first(CellType.GOAL)
-        if edited_start is not None:
-            self._start = edited_start
-        else:
-            self._start = self._default_start
-            self._grid.set_cell(*self._default_start, CellType.START)
-            self._log.warning(
-                "Editor grid had no START; restored default start=%s",
-                self._default_start,
-            )
-        if edited_goal is not None:
-            self._goal = edited_goal
-        else:
-            self._goal = self._default_goal
-            self._grid.set_cell(*self._default_goal, CellType.GOAL)
-            self._log.warning(
-                "Editor grid had no GOAL; restored default goal=%s",
-                self._default_goal,
-            )
-        self._env = SmartCityEnv(
-            self._grid, self._wind, self._reward_calc, self._start, self._goal
-        )
-
-    def _find_first(self, cell_type: CellType) -> tuple[int, int] | None:
-        """Return the first position of the given cell type, or None if absent."""
-        for r in range(self._grid.rows):
-            for c in range(self._grid.cols):
-                if self._grid.get_cell(r, c) is cell_type:
-                    return (r, c)
-        return None
-
     def _make_config_ns(self) -> SimpleNamespace:
-        """Return a SimpleNamespace of gui/grid config for the Renderer and Dashboard."""
-        ns = SimpleNamespace()
-        ns.gui = SimpleNamespace(**self._setup["gui"])
-        ns.grid = SimpleNamespace(**self._setup["grid"])
-        return ns
-
-    def _validate_config_version(self, version: str, path: str) -> None:
-        """Warn if config version does not match the supported SDK version."""
-        if str(version) != _SUPPORTED_CONFIG_VERSION:
-            self._log.warning(
-                "Config version mismatch: '%s' in %s (SDK expects '%s'). "
-                "Some settings may be ignored.",
-                version, path, _SUPPORTED_CONFIG_VERSION,
-            )
-        else:
-            self._log.debug("Config version %s OK (SDK=%s)", version, VERSION)
+        """Return config namespace for Renderer and Dashboard."""
+        return make_config_ns(self._setup)
